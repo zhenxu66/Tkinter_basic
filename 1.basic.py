@@ -85,7 +85,7 @@ button3.pack()
 # ------------Radiobutton--------
 
 var_label = tk.StringVar()
-label3 = tk.Label(root, bg='green', width=20, text='empty')
+label3 = tk.Label(root, bg='green', width=20, text='empty')  # label can be config with new text
 label3.pack()
 
 def print_rd_selection():
@@ -97,6 +97,11 @@ radiobutton1 = tk.Radiobutton(root, text='Option A',  variable=var_label, value=
 radiobutton2 = tk.Radiobutton(root, text='Option B',  variable=var_label, value='B', command=print_rd_selection)
 radiobutton1.pack()
 radiobutton2.pack()
+
+# ------------Scale--------
+
+# scale1 = tk.Scale(root, label='Value_slide', from_=0, to=0.08, orient=tk.HORIZONTAL, length=200, showvalue=0,
+#                   tickinterval=)
 
 
 
