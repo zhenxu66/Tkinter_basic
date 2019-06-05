@@ -2,7 +2,7 @@ import tkinter as tk
 
 root = tk.Tk()
 root.title("Test Window")
-root.geometry('200x500')
+root.geometry('200x700')
 
 
 
@@ -80,6 +80,25 @@ def print_from_list():
 
 button3 = tk.Button(root, text='print selection', width=15, height=2, command=print_from_list)
 button3.pack()
+
+
+# ------------Radiobutton--------
+
+var_label = tk.StringVar()
+label3 = tk.Label(root, bg='green', width=20, text='empty')
+label3.pack()
+
+def print_rd_selection():
+    label3.config(text='you have selected ' + var_label.get())   # Label.config(text = ) update text file inside a Label
+
+
+# use value into same variable,which will be passed into label config updated text
+radiobutton1 = tk.Radiobutton(root, text='Option A',  variable=var_label, value='A', command=print_rd_selection)
+radiobutton2 = tk.Radiobutton(root, text='Option B',  variable=var_label, value='B', command=print_rd_selection)
+radiobutton1.pack()
+radiobutton2.pack()
+
+
 
 # like while to refresh window
 
