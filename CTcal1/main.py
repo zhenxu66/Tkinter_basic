@@ -6,6 +6,7 @@ import numpy as np
 import datetime
 now = datetime.datetime.now()
 
+# pip install mysql-connector-python
 import mysql.connector
 
 
@@ -42,11 +43,28 @@ if values['server'] is True:
 
 cursor = cnx.cursor()
 
+sql_allCert = ("SELECT DISTINCT Cert_number, Customer_DUT_Model, Customer_DUT_SN, Customer_CompanyName, " 
+               "Cert_Test_EndTime, Callab_Order_SO_Number, Labpeople_Firstname, " 
+               "Labpeople_Lastname, TestTypeDCAC, Testfreq, PowerAnalyzer_config_DUT_Port, " 
+               "Cert_TestTurns, PowerAnalyzer_model, PowerAnalyzer_Manufacturer " 
+               "FROM flatstoretable_danisense_bk_id"
+               " ORDER BY Cert_number DESC; ")
+cursor.execute(sql_allCert)
+
+df_allCert = pd.DataFrame.from_records(list(cursor.fetchall()),
+                                       columns=[
+                                            'Cert_number', 'Customer_DUT_Model', 'Customer_DUT_SN',
+                                            'Customer_CompanyName', 'Cert_Test_EndTime',
+                                            'Callab_Order_SO_Number', 'Labpeople_Firstname', 'Labpeople_Lastname',
+                                            'TestTypeDCAC', 'Testfreq', 'PowerAnalyzer_config_DUT_Port',
+                                            'Cert_TestTurns', 'PowerAnalyzer_model', 'PowerAnalyzer_Manufacturer'
+                                        ])
+
 
 sql_Cust_Code_Name = ("SELECT idCustomer_Info, Customer_Code, Customer_CompanyName FROM customer_info"
                       " ORDER BY idCustomer_Info DESC")
 
-sql_Cust_DUT = ("SELECT idCustomer_DUT, Customer_DUT_SN, Customer_Code, Customer_CompanyName, "
+sql_Cust_DUT = ("SELECT idCustomer_DUT, Customer_DUT_SN, Customer_DUT_Model, Customer_Code, Customer_CompanyName, "
                 "Customer_Info_idCustomer_Info FROM customer_dut "
                 "JOIN customer_info ON Customer_Info_idCustomer_Info = idCustomer_Info"
                 " ORDER BY idCustomer_DUT DESC")
@@ -62,6 +80,8 @@ cursor.execute(sql_Cust_Code_Name)
 #     Customer_CompanyName_List.append(Customer_CompanyName)
 
 # https://pbpython.com/pandas-list-dict.html
+
+
 df_customer = pd.DataFrame.from_records(list(cursor.fetchall()),
                                         columns=['idCustomer_Info', 'Customer_Code',
                                                  'Customer_CompanyName'])
@@ -73,7 +93,7 @@ cursor.execute(sql_Cust_DUT)
 
 
 df_dut_customer = pd.DataFrame.from_records(list(cursor.fetchall()),
-                                            columns=['idCustomer_DUT', 'DUT_SN', 'Customer_Code',
+                                            columns=['idCustomer_DUT', 'DUT_SN', 'Customer_DUT_Model', 'Customer_Code',
                                                      'Customer_CompanyName', 'Customer_Info_idCustomer_Info'])
 customer_num = len(df_customer.index)
 
@@ -89,25 +109,26 @@ Customer_Code_list = df_customer['Customer_Code'].tolist()
 DUT_customer_SN_list = df_dut_customer['DUT_SN'].tolist()
 print(DUT_customer_SN_list)
 
-layout1 = [[sg.Text('Check Customer Name with Code', font='Helvetica 15')],
+layout1 = [[sg.Button('Show all Cert')],
+           [sg.Text('Check Customer Name with Code', font='Helvetica 15')],
            [sg.Text('Customer Code: '), sg.InputText(default_text='YOKGA1', size=(12, 1), key='Customer_Code')],
            [sg.Text('Customer Name: '), sg.Text('', size=(80, 1), key='Customer_Name')],
            [sg.Text('')],
            [sg.ReadButton('Search'), sg.Button('Show all Customer')],
            [sg.Text('Check DUT', font='Helvetica 15')],
            [sg.Text('DUT SN: '), sg.InputText(default_text='9113250015', size=(12, 1), key='DUT_SN')],
-           [sg.Text('Customer Name: '), sg.Text('', size=(80, 1), key='Customer_Name_DUT')],
+           [sg.Text('Customer Name (Show multiple with id): '), sg.Text('', size=(80, 3), key='Customer_Name_DUT')],
            [sg.ReadButton('Search_DUT'), sg.Button('Show all DUT')],
            [sg.Text('')],
            [sg.Text('Add New Customer (Code/Name/Street', font='Helvetica 15')],
            [sg.Text('(/City/State/Zip/Country)', font='Helvetica 15')],
            [sg.InputText(default_text='GMW_Code', size=(12, 1), key='Cust_Code'),
-            sg.InputText(default_text='GMW Associates', size=(18, 1), key='Cust_Name'),
-            sg.InputText(default_text='955 Industrial', size=(15, 1), key='Cust_Street')],
-           [sg.InputText(default_text='San Carlos', size=(10, 1), key='Cust_City'),
+            sg.InputText(default_text='GMW Associates', size=(20, 1), key='Cust_Name'),
+            sg.InputText(default_text='955 Industrial', size=(25, 1), key='Cust_Street')],
+           [sg.InputText(default_text='San Carlos', size=(15, 1), key='Cust_City'),
             sg.InputText(default_text='CA', size=(8, 1), key='Cust_State'),
             sg.InputText(default_text='94563', size=(8, 1), key='Cust_Zipcode'),
-            sg.InputText(default_text='USA', size=(10, 1), key='Cust_Country')],
+            sg.InputText(default_text='USA', size=(15, 1), key='Cust_Country')],
            [sg.ReadButton('Add_New_Customer')],
            [sg.Text('')],
            [sg.Text('Add New DUT (SN/Manufacturer/Model)', font='Helvetica 15')],
@@ -115,19 +136,21 @@ layout1 = [[sg.Text('Check Customer Name with Code', font='Helvetica 15')],
            [sg.InputText(default_text='add_dut_sn', size=(12, 1), key='add_dut_sn'),
             sg.InputText(default_text='Danisense', size=(12, 1), key='add_dut_manufacturer'),
             sg.InputCombo(Danisense_Models, default_value='DS200IDSA', size=(20, 4), enable_events=True, key='_LIST_')],
-           [sg.InputText(default_text='add_dut_controller', size=(10, 1), key='add_dut_controller'),
-            sg.InputText(default_text='add_dut_controller_sn', size=(8, 1), key='add_dut_controller_sn'),
-            sg.InputText(default_text='controller_chan', size=(8, 1), key='add_dut_controller_chan'),
+           [sg.InputText(default_text='add_dut_controller', size=(18, 1), key='add_dut_controller'),
+            sg.InputText(default_text='add_dut_controller_sn', size=(18, 1), key='add_dut_controller_sn'),
+            sg.InputText(default_text='controller_chan', size=(12, 1), key='add_dut_controller_chan'),
             sg.InputText(default_text='2020-05-06', size=(10, 1), key='add_exp_date'),
             sg.InputCombo(Customer_Code_list, default_value='GMWI1', size=(20, 4), enable_events=True, key='_LIST2_')],
            [sg.ReadButton('Add_New_DUT')],
            [sg.Text('')],
-           [sg.Text('Add New Test Order(RMA/Callab_Order_ReceiveDate/Customer_DUT_SN/idTestType)',
-                    font='Helvetica 15')],
-           [sg.InputText(default_text='add_order_RMA', size=(12, 1), key='add_order_RMA'),
+           [sg.Text('Add New Test Order(RMA/Callab_Order_ReceiveDate/Customer_DUT_SN/id_DUT(Duplicated SN))/idTestType)',
+                    font='Helvetica 12')],
+           [sg.InputText(default_text='add_order_RMA', size=(14, 1), key='add_order_RMA'),
             sg.InputText(default_text='2020-12-16', size=(12, 1), key='add_order_ReceiveDate'),
             sg.InputCombo(DUT_customer_SN_list, default_value='19287210001', size=(20, 4), enable_events=True,
-                          key='_LIST3_')],
+                          key='_LIST3_'),
+            sg.InputText(default_text='165', size=(12, 1), key='DuplicatedDUTID')
+            ],
            [sg.Checkbox('DC', key='DC'), sg.Checkbox('AC60Hz', key='AC60Hz'),
             sg.Checkbox('AC400Hz', key='AC400Hz'), sg.Checkbox('AC50Hz', key='AC50Hz')],
            [sg.ReadButton('Add_New_Order')],
@@ -174,7 +197,15 @@ while True:
             Cust_Name_DUT = df_dut_customer.loc[df_dut_customer['DUT_SN'] == SN].get('Customer_CompanyName').item()
         else:
             Multiple_Customer_Series = df_dut_customer.loc[df_dut_customer['DUT_SN'] == SN].get('Customer_CompanyName')
-            Cust_Name_DUT = ' | '.join(Multiple_Customer_Series.tolist())
+            Multiple_Customer_Model_Series = df_dut_customer.loc[df_dut_customer['DUT_SN'] == SN].\
+                get('Customer_DUT_Model')
+            Multiple_Customer_id_Series = df_dut_customer.loc[df_dut_customer['DUT_SN'] == SN]. \
+                get('idCustomer_DUT')
+
+            s0 = ' | '.join(Multiple_Customer_id_Series.apply(str).tolist())
+            s1 = ' | '.join(Multiple_Customer_Series.tolist())
+            s2 = ' | '.join(Multiple_Customer_Model_Series.tolist())
+            Cust_Name_DUT = s0 + '\n' + s1 + '\n' + s2
     else:
         Cust_Name_DUT = 'DUT SN Not in the database'
 
@@ -216,6 +247,32 @@ while True:
             win2_active  = False
             win2.Close()
 
+    if not win2_active and button == 'Show all Cert':
+        win2_active = True
+        layout2 = [[sg.Text('Show all Cert (Columns will be trimmed')],
+                   [sg.Table(values=df_allCert.values.tolist(),
+                             headings=[
+                                 'Cert_number', 'Customer_DUT_Model', 'Customer_DUT_SN', 'Customer_CompanyName',
+                                 'Cert_Test_EndTime', 'Callab_Order_SO_Number',
+                                 'Labpeople_Firstname', 'Labpeople_Lastname', 'TestTypeDCAC', 'Testfreq',
+                                 'PowerAnalyzer_config_DUT_Port', 'Cert_TestTurns', 'PowerAnalyzer_model',
+                                 'PowerAnalyzer_Manufacturer'
+                             ],
+                             display_row_numbers=False,
+                             col_widths=10, auto_size_columns=True)],
+                   [sg.Button('Exit')]]
+
+        # Table must have predefine headings
+
+        win2 = sg.Window('Show all Cert').Layout(layout2)
+
+    if win2_active:
+        print(win2_active)
+        ev2, vals2 = win2.Read()  # parameter timeout=100
+        if ev2 is None or ev2 == 'Exit':
+            print(vals2)
+            win2_active  = False
+            win2.Close()
 
 
     Cust_Code= values['Cust_Code']
@@ -261,9 +318,12 @@ while True:
         print(type(cust_id_SN))
     else:
         # Here is numpy int64, need to convert to int then into database
-        DUT_id_SN = int(df_dut_customer.loc[df_dut_customer['DUT_SN'] == values['_LIST3_']].get('idCustomer_DUT')[0])
-        cust_id_SN = int(df_dut_customer.loc[df_dut_customer['DUT_SN'] == values['_LIST3_']] \
-            .get('Customer_Info_idCustomer_Info')[0])
+        sg.Popup('Multiple DUT id assigned for this SN, check DUT above and enter id_DUT in the box')
+        DUT_id_SN = int(values['DuplicatedDUTID'])
+        print(DUT_id_SN)
+        print(df_dut_customer.loc[df_dut_customer['idCustomer_DUT'] == DUT_id_SN].get('Customer_Info_idCustomer_Info'))
+        cust_id_SN = int(df_dut_customer.loc[df_dut_customer['idCustomer_DUT'] == DUT_id_SN] \
+            .get('Customer_Info_idCustomer_Info').tolist()[0])
         print(type(DUT_id_SN))
         print(type(cust_id_SN))
 
@@ -282,7 +342,7 @@ while True:
                          DUT_id_SN, cust_id_SN, 1, now.strftime('%Y-%m-%d %H:%M:%S'))
         print(data_order_DC)
         cursor.execute(sql_Add_Order, data_order_DC)
-        sg.Popup('New DUT with with SN number "({})" will be tested at DC"  is added'.format(data_dut[6]))
+        sg.Popup('New Test Order with with SN number "({})" will be tested at DC"  is added'.format(values['_LIST3_']))
     if button == 'Add_New_Order' and values['AC60Hz'] is True:
 
         cursor.execute("SELECT max(idCallab_Order) FROM callab_order")
@@ -291,7 +351,8 @@ while True:
                              DUT_id_SN, cust_id_SN, 2, now.strftime('%Y-%m-%d %H:%M:%S'))
         print(data_order_AC60Hz)
         cursor.execute(sql_Add_Order, data_order_AC60Hz)
-        sg.Popup('New DUT with with SN number "({})" will be tested at AC60Hz"  is added'.format(data_dut[6]))
+        sg.Popup('New Test Order with with SN number "({})" will be tested at AC60Hz"  is added'.
+                 format(values['_LIST3_']))
     if button == 'Add_New_Order' and values['AC400Hz'] is True:
 
         cursor.execute("SELECT max(idCallab_Order) FROM callab_order")
@@ -300,7 +361,8 @@ while True:
                               DUT_id_SN, cust_id_SN, 3, now.strftime('%Y-%m-%d %H:%M:%S'))
         print(data_order_AC400Hz)
         cursor.execute(sql_Add_Order, data_order_AC400Hz)
-        sg.Popup('New DUT with with SN number "({})" will be tested at AC400Hz"  is added'.format(data_dut[6]))
+        sg.Popup('New Test Order with with SN number "({})" will be tested at AC400Hz"  is added'.
+                 format(values['_LIST3_']))
     if button == 'Add_New_Order' and values['AC50Hz'] is True:
 
         cursor.execute("SELECT max(idCallab_Order) FROM callab_order")
@@ -309,7 +371,8 @@ while True:
                              DUT_id_SN, cust_id_SN, 4, now.strftime('%Y-%m-%d %H:%M:%S'))
         print(data_order_AC50Hz)
         cursor.execute(sql_Add_Order, data_order_AC50Hz)
-        sg.Popup('New DUT with with SN number "({})" will be tested at AC50Hz"  is added'.format(data_dut[6]))
+        sg.Popup('New Test Order with with SN number "({})" will be tested at AC50Hz"  is added'.
+                 format(values['_LIST3_']))
 
 
 cnx.commit()
