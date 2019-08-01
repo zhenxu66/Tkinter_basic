@@ -1,4 +1,4 @@
-
+# import DUT Order will be implemented later
 
 import PySimpleGUI as sg
 import pandas as pd
@@ -129,7 +129,7 @@ layout1 = [[sg.Button('Show all Cert')],
             sg.InputText(default_text='CA', size=(8, 1), key='Cust_State'),
             sg.InputText(default_text='94563', size=(8, 1), key='Cust_Zipcode'),
             sg.InputText(default_text='USA', size=(15, 1), key='Cust_Country')],
-           [sg.ReadButton('Add_New_Customer')],
+           [sg.ReadButton('Add_New_Customer'), sg.ReadButton('Import_New_Cust_List(csv)')],
            [sg.Text('')],
            [sg.Text('Add New DUT (SN/Manufacturer/Model)', font='Helvetica 15')],
            [sg.Text('(/Controller/Control_SN/Control_Chan/ExpDate/Cust_Code)', font='Helvetica 15')],
@@ -141,7 +141,7 @@ layout1 = [[sg.Button('Show all Cert')],
             sg.InputText(default_text='controller_chan', size=(12, 1), key='add_dut_controller_chan'),
             sg.InputText(default_text='2020-05-06', size=(10, 1), key='add_exp_date'),
             sg.InputCombo(Customer_Code_list, default_value='GMWI1', size=(20, 4), enable_events=True, key='_LIST2_')],
-           [sg.ReadButton('Add_New_DUT')],
+           [sg.ReadButton('Add_New_DUT'), sg.ReadButton('Import_New_DUT_List(csv)')],
            [sg.Text('')],
            [sg.Text('Add New Test Order(RMA/Callab_Order_ReceiveDate/Customer_DUT_SN/id_DUT(Duplicated SN))/idTestType)',
                     font='Helvetica 12')],
@@ -153,7 +153,7 @@ layout1 = [[sg.Button('Show all Cert')],
             ],
            [sg.Checkbox('DC', key='DC'), sg.Checkbox('AC60Hz', key='AC60Hz'),
             sg.Checkbox('AC400Hz', key='AC400Hz'), sg.Checkbox('AC50Hz', key='AC50Hz')],
-           [sg.ReadButton('Add_New_Order')],
+           [sg.ReadButton('Add_New_Order'), sg.ReadButton('Import_New_Order_List(csv)')],
            [sg.Button('Exit')]]   # Button close the window
 
 window1 = sg.Window(title='check customer name', size=(1200, 1000), grab_anywhere=False).Layout(layout1)
