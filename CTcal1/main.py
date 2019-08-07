@@ -1,4 +1,5 @@
 # import DUT Order will be implemented later
+# pyinstaller.exe --onefile --windowed --icon=flash-21.ico CTcal1/main.py --name Test3
 
 import PySimpleGUI as sg
 import pandas as pd
@@ -106,57 +107,60 @@ df_ct_danisense = pd.DataFrame.from_records(list(cursor.fetchall()), columns=['i
 
 Danisense_Models = df_ct_danisense['CT_Danisense_Model'].tolist()
 Customer_Code_list = df_customer['Customer_Code'].tolist()
+Customer_Code_list.sort()
+print(Customer_Code_list)
 DUT_customer_SN_list = df_dut_customer['DUT_SN'].tolist()
 print(DUT_customer_SN_list)
 
-layout1 = [[sg.Button('Show all Cert')],
+layout1 = [[sg.Button('Show all Cert'), sg.Text('                                                             '),
+            sg.Button('Exit')],
            [sg.Text('Check Customer Name with Code', font='Helvetica 15')],
            [sg.Text('Customer Code: '), sg.InputText(default_text='YOKGA1', size=(12, 1), key='Customer_Code')],
            [sg.Text('Customer Name: '), sg.Text('', size=(80, 1), key='Customer_Name')],
-           [sg.Text('')],
            [sg.ReadButton('Search'), sg.Button('Show all Customer')],
            [sg.Text('Check DUT', font='Helvetica 15')],
            [sg.Text('DUT SN: '), sg.InputText(default_text='9113250015', size=(12, 1), key='DUT_SN')],
            [sg.Text('Customer Name (Show multiple with id): '), sg.Text('', size=(80, 3), key='Customer_Name_DUT')],
            [sg.ReadButton('Search_DUT'), sg.Button('Show all DUT')],
-           [sg.Text('')],
            [sg.Text('Add New Customer (Code/Name/Street', font='Helvetica 15')],
            [sg.Text('(/City/State/Zip/Country)', font='Helvetica 15')],
-           [sg.InputText(default_text='GMW_Code', size=(12, 1), key='Cust_Code'),
-            sg.InputText(default_text='GMW Associates', size=(20, 1), key='Cust_Name'),
-            sg.InputText(default_text='955 Industrial', size=(25, 1), key='Cust_Street')],
-           [sg.InputText(default_text='San Carlos', size=(15, 1), key='Cust_City'),
-            sg.InputText(default_text='CA', size=(8, 1), key='Cust_State'),
-            sg.InputText(default_text='94563', size=(8, 1), key='Cust_Zipcode'),
-            sg.InputText(default_text='USA', size=(15, 1), key='Cust_Country')],
+           [sg.InputText(default_text='GMW_Code', size=(12, 1), key='Cust_Code', font='Arial 18'),
+            sg.InputText(default_text='GMW Associates', size=(20, 1), key='Cust_Name', font='Arial 18'),
+            sg.InputText(default_text='955 Industrial', size=(25, 1), key='Cust_Street', font='Arial 18')],
+           [sg.InputText(default_text='San Carlos', size=(15, 1), key='Cust_City', font='Arial 18'),
+            sg.InputText(default_text='CA', size=(8, 1), key='Cust_State', font='Arial 18'),
+            sg.InputText(default_text='94563', size=(8, 1), key='Cust_Zipcode', font='Arial 18'),
+            sg.InputText(default_text='USA', size=(15, 1), key='Cust_Country', font='Arial 18')],
            [sg.ReadButton('Add_New_Customer'), sg.ReadButton('Import_New_Cust_List(csv)')],
-           [sg.Text('')],
            [sg.Text('Add New DUT (SN/Manufacturer/Model)', font='Helvetica 15')],
            [sg.Text('(/Controller/Control_SN/Control_Chan/ExpDate/Cust_Code)', font='Helvetica 15')],
-           [sg.InputText(default_text='add_dut_sn', size=(12, 1), key='add_dut_sn'),
-            sg.InputText(default_text='Danisense', size=(12, 1), key='add_dut_manufacturer'),
-            sg.InputCombo(Danisense_Models, default_value='DS200IDSA', size=(20, 4), enable_events=True, key='_LIST_')],
-           [sg.InputText(default_text='add_dut_controller', size=(18, 1), key='add_dut_controller'),
-            sg.InputText(default_text='add_dut_controller_sn', size=(18, 1), key='add_dut_controller_sn'),
-            sg.InputText(default_text='controller_chan', size=(12, 1), key='add_dut_controller_chan'),
-            sg.InputText(default_text='2020-05-06', size=(10, 1), key='add_exp_date'),
-            sg.InputCombo(Customer_Code_list, default_value='GMWI1', size=(20, 4), enable_events=True, key='_LIST2_')],
+           [sg.InputText(default_text='add_dut_sn', size=(12, 1), key='add_dut_sn', font='Arial 18'),
+            sg.InputText(default_text='Danisense', size=(12, 1), key='add_dut_manufacturer', font='Arial 18'),
+            sg.InputCombo(Danisense_Models, default_value='DS200IDSA', size=(20, 4), enable_events=True, key='_LIST_',
+                          font='Arial 18')],
+           [sg.InputText(default_text='add_dut_controller', size=(18, 1), key='add_dut_controller', font='Arial 18'),
+            sg.InputText(default_text='add_dut_controller_sn', size=(18, 1), key='add_dut_controller_sn',
+                         font='Arial 18'),
+            sg.InputText(default_text='controller_chan', size=(12, 1), key='add_dut_controller_chan', font='Arial 18'),
+            sg.InputText(default_text='2020-05-06', size=(10, 1), key='add_exp_date', font='Arial 18'),
+            sg.InputCombo(Customer_Code_list, default_value='GMWI1', size=(25, 4), enable_events=True, key='_LIST2_',
+                          font='Arial 18')],
            [sg.ReadButton('Add_New_DUT'), sg.ReadButton('Import_New_DUT_List(csv)')],
-           [sg.Text('')],
            [sg.Text('Add New Test Order(RMA/Callab_Order_ReceiveDate/Customer_DUT_SN/id_DUT(Duplicated SN))/idTestType)',
                     font='Helvetica 12')],
-           [sg.InputText(default_text='add_order_RMA', size=(14, 1), key='add_order_RMA'),
-            sg.InputText(default_text='2020-12-16', size=(12, 1), key='add_order_ReceiveDate'),
+           [sg.InputText(default_text='add_order_RMA', size=(14, 1), key='add_order_RMA',  font='Arial 18'),
+            sg.InputText(default_text='2020-12-16', size=(12, 1), key='add_order_ReceiveDate',  font='Arial 18'),
             sg.InputCombo(DUT_customer_SN_list, default_value='19287210001', size=(20, 4), enable_events=True,
-                          key='_LIST3_'),
-            sg.InputText(default_text='165', size=(12, 1), key='DuplicatedDUTID')
+                          key='_LIST3_',  font='Arial 18'),
+            sg.InputText(default_text='165', size=(12, 1), key='DuplicatedDUTID',  font='Arial 18')
             ],
-           [sg.Checkbox('DC', key='DC'), sg.Checkbox('AC60Hz', key='AC60Hz'),
-            sg.Checkbox('AC400Hz', key='AC400Hz'), sg.Checkbox('AC50Hz', key='AC50Hz')],
-           [sg.ReadButton('Add_New_Order'), sg.ReadButton('Import_New_Order_List(csv)')],
-           [sg.Button('Exit')]]   # Button close the window
+           [sg.Checkbox('DC', key='DC', font='Arial 18'), sg.Checkbox('AC60Hz', key='AC60Hz', font='Arial 18'),
+            sg.Checkbox('AC400Hz', key='AC400Hz', font='Arial 18'),
+            sg.Checkbox('AC50Hz', key='AC50Hz', font='Arial 18')],
+           [sg.ReadButton('Add_New_Order'), sg.ReadButton('Import_New_Order_List(csv)')]
+           ]   # Button close the window
 
-window1 = sg.Window(title='check customer name', size=(1200, 1000), grab_anywhere=False).Layout(layout1)
+window1 = sg.Window(title='check customer name', size=(1300, 950), grab_anywhere=False).Layout(layout1)
 
 win2_active = False
 
@@ -171,6 +175,30 @@ while True:
     df_customer = pd.DataFrame.from_records(list(cursor.fetchall()),
                                             columns=['idCustomer_Info', 'Customer_Code',
                                                      'Customer_CompanyName'])
+
+    sql_Cust_DUT = ("SELECT idCustomer_DUT, Customer_DUT_SN, Customer_DUT_Model, Customer_Code, Customer_CompanyName, "
+                    "Customer_Info_idCustomer_Info FROM customer_dut "
+                    "JOIN customer_info ON Customer_Info_idCustomer_Info = idCustomer_Info"
+                    " ORDER BY idCustomer_DUT DESC")
+
+    cursor.execute(sql_Cust_DUT)
+
+    df_dut_customer = pd.DataFrame.from_records(list(cursor.fetchall()),
+                                                columns=['idCustomer_DUT', 'DUT_SN', 'Customer_DUT_Model',
+                                                         'Customer_Code',
+                                                         'Customer_CompanyName', 'Customer_Info_idCustomer_Info'])
+    customer_num = len(df_customer.index)
+
+    customer_dut_num = len(df_dut_customer.index)
+
+    sql_ct_danisense = ("SELECT idCT_Danisense, CT_Danisense_Model FROM ct_danisense")
+    cursor.execute(sql_ct_danisense)
+    df_ct_danisense = pd.DataFrame.from_records(list(cursor.fetchall()),
+                                                columns=['idCT_Danisense', 'CT_Danisense_Model'])
+
+    Danisense_Models = df_ct_danisense['CT_Danisense_Model'].tolist()
+    Customer_Code_list = df_customer['Customer_Code'].tolist().sort()
+    DUT_customer_SN_list = df_dut_customer['DUT_SN'].tolist()
 
 
     # Main function
